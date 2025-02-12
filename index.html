@@ -220,27 +220,22 @@ async function sendMessage() {
     
     const responseDiv = appendMessage("bot", "...");
 
-    try {
-        const response = await fetch("https://xiaodian2.vercel.app/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message }),
-        });
+    const response = await fetch("https://xiaodian2.vercel.app/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+    });
 
-        if (!response.ok) {
-            responseDiv.textContent = "服务器错误，请稍后重试！";
-            return;
-        }
-
-        const responseJson = await response.json();
-        const responseText = responseJson.output?.output?.text || "解析错误";
-        responseDiv.textContent = responseText;
-
-    } catch (error) {
-        responseDiv.textContent = "网络异常，请稍后重试！";
-        console.error("请求失败：", error);
+    if (!response.ok) {
+        responseDiv.textContent = "服务器错误，请稍后重试！";
+        return;
     }
+
+    const responseJson = await response.json();
+    const responseText = responseJson.output.output.text;  // 确保正确解析返回内容
+    responseDiv.textContent = responseText;
 }
+
 
 
         function appendMessage(role, content) {
