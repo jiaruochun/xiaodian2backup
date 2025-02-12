@@ -210,30 +210,38 @@
     </div>
 
     <script>
-        async function sendMessage() {
-            const userInput = document.getElementById("user-input");
-            const message = userInput.value.trim();
-            if (!message) return;
-            
-            appendMessage("user", message);
-            userInput.value = "";
-            
-            const responseDiv = appendMessage("bot", "...");
-            const response = await fetch("https://xiaodian2.vercel.app/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message }),
-            });
+async function sendMessage() {
+    const userInput = document.getElementById("user-input");
+    const message = userInput.value.trim();
+    if (!message) return;
+    
+    appendMessage("user", message);
+    userInput.value = "";
+    
+    const responseDiv = appendMessage("bot", "...");
 
-            if (!response.ok) {
-                responseDiv.textContent = "服务器错误，请稍后重试！";
-                return;
-            }
+    try {
+        const response = await fetch("https://xiaodian2.vercel.app/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message }),
+        });
 
-            const responseJson = await response.json();
-            const responseText = responseJson.output.text;
-            responseDiv.textContent = responseText;
+        if (!response.ok) {
+            responseDiv.textContent = "服务器错误，请稍后重试！";
+            return;
         }
+
+        const responseJson = await response.json();
+        const responseText = responseJson.output?.output?.text || "解析错误";
+        responseDiv.textContent = responseText;
+
+    } catch (error) {
+        responseDiv.textContent = "网络异常，请稍后重试！";
+        console.error("请求失败：", error);
+    }
+}
+
 
         function appendMessage(role, content) {
             const chatBox = document.getElementById("chat-box");
