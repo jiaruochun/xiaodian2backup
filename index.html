@@ -219,7 +219,7 @@
             userInput.value = "";
             
             const responseDiv = appendMessage("bot", "...");
-            const response = await fetch("xiaodian2-n4r7f8nxi-jiaruochuns-projects.vercel.app", {
+            const response = await fetch("https://xiaodian2.vercel.app/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message }),
