@@ -115,7 +115,7 @@
         }
 
         .chat-window .bot {
-            background-color: var (--surface-color);
+            background-color: var(--surface-color);
             color: var(--text-color);
             align-self: flex-start;
             text-align: left;
@@ -219,7 +219,7 @@
             userInput.value = "";
             
             const responseDiv = appendMessage("bot", "...");
-            const response = await fetch("http://localhost:3000/chat", {
+            const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message }),
