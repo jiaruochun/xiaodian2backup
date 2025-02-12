@@ -8,12 +8,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 配置 CORS
 const corsOptions = {
-    origin: "https://2.mdznkf.xin", // 允许的域名
-    methods: "POST", // 允许的 HTTP 方法
-    allowedHeaders: "Content-Type", // 允许的请求头
+    origin: "*", // 允许所有来源，测试阶段先这样，生产环境再限定
+    methods: ["GET", "POST", "OPTIONS"], // 确保 OPTIONS 请求也被允许
+    allowedHeaders: ["Content-Type", "Authorization"], // 确保 Authorization 头部也被允许
 };
+app.use(cors(corsOptions));
+
+
 
 app.use(cors(corsOptions)); // 使用 CORS 中间件
 app.use(express.json());
