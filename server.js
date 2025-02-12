@@ -1,3 +1,4 @@
+// filepath: /c:/Users/jia_r/Desktop/test/server.js
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
@@ -8,8 +9,8 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = "sk-c55a29fa24064c7da9e74e8ea001d968";
-const APP_ID = "773db83e25ea494d80b5a660e3ae6884";
+const API_KEY = process.env.API_KEY;
+const APP_ID = process.env.APP_ID;
 const API_URL = `https://dashscope.aliyuncs.com/api/v1/apps/${APP_ID}/completion`;
 
 app.post("/chat", async (req, res) => {
