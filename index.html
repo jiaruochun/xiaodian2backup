@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Material Design 风格 */
+        :root {
+            --primary-color: #008965; /* 主色调 */
+            --secondary-color: #006f4f; /* 次色调 */
+            --background-color: #f5f5f5; /* 背景色 */
+            --surface-color: #ffffff; /* 表面色 */
+            --text-color: #333333; /* 文字颜色 */
+            --text-light-color: #ffffff; /* 浅色文字 */
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 阴影 */
+            --border-radius: 12px; /* 圆角 */
+            --transition: all 0.3s ease; /* 过渡效果 */
+            --highlight-color: #ff4d4d; /* 测试版标签颜色 */
+            --version-bg-color: #ff9800; /* 2.0底色 */
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif; /* 使用 Material Design 推荐的字体 */
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            background-color: var(--surface-color);
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 80vh; /* 确保聊天容器有足够的高度 */
+        }
+
+        header {
+            background-color: var(--secondary-color);
+            color: var(--text-light-color);
+            padding: 16px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .header-title {
+            display: inline-block;
+            vertical-align: middle; /* 垂直对齐 */
+            color: var(--text-light-color); /* 白色字体 */
+        }
+
+        .header-version {
+            display: inline-block;
+            background-color: var(--version-bg-color);
+            color: var(--text-light-color);
+            padding: 1px 3px; /* 调整圆角矩形框的大小 */
+            border-radius: var(--border-radius);
+            margin-left: 8px;
+            font-size: 0.7em; /* 适当减小2.0的大小 */
+            font-weight: bold; /* 粗体 */
+            vertical-align: middle; /* 垂直对齐 */
+        }
+
+        .beta-tag {
+            position: absolute;
+            top: 50%;
+            right: 16px;
+            transform: translateY(-50%);
+            background-color: var(--highlight-color);
+            color: var(--text-light-color);
+            padding: 4px 8px;
+            border-radius: var(--border-radius);
+            font-size: 0.8em; /* 适当减小测试版的大小 */
+            font-weight: bold;
+            box-shadow: var(--shadow);
+        }
+
+        .chat-window {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-window p {
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            max-width: 80%;
+            word-wrap: break-word;
+            position: relative;
+            font-size: 0.95em;
+            transition: var(--transition);
+        }
+
+        .chat-window .user {
+            background-color: var(--primary-color);
+            color: var(--text-light-color);
+            align-self: flex-end;
+            text-align: left;
+            box-shadow: var(--shadow);
+        }
+
+        .chat-window .bot {
+            background-color: var (--surface-color);
+            color: var(--text-color);
+            align-self: flex-start;
+            text-align: left;
+            border: 1px solid #e0e0e0; /* 添加边框 */
+            box-shadow: var(--shadow);
+        }
+
+        .input-container {
+            display: flex;
+            border-top: 1px solid #e0e0e0;
+            padding: 16px;
+            background-color: var(--surface-color);
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .input-container input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 137, 101, 0.2); /* 聚焦效果 */
+        }
+
+        .input-container button {
+            margin-left: 12px;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: var(--text-light-color);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .input-container button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px); /* 悬停效果 */
+        }
+
+        /* 滚动条样式 */
+        .chat-window::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-window::-webkit-scrollbar-thumb {
+            background-color: #cccccc;
+            border-radius: 4px;
+        }
+
+        .chat-window::-webkit-scrollbar-track {
+            background-color: #f1f1f1;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-window p {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="chat-container">
+        <header>
+            <span class="header-title">呼供小电</span>
+            <span class="header-version">2.0</span>
+            <div class="beta-tag">测试版</div>
+        </header>
+        <div class="chat-window" id="chat-box"></div>
+        <div class="input-container">
+            <input id="user-input" type="text" placeholder="输入消息..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input");
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            appendMessage("user", message);
+            userInput.value = "";
+            
+            const responseDiv = appendMessage("bot", "...");
+            const response = await fetch("http://localhost:3000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message }),
+            });
+
+            if (!response.ok) {
+                responseDiv.textContent = "服务器错误，请稍后重试！";
+                return;
+            }
+
+            const responseJson = await response.json();
+            const responseText = responseJson.output.text;
+            responseDiv.textContent = responseText;
+        }
+
+        function appendMessage(role, content) {
+            const chatBox = document.getElementById("chat-box");
+            const messageDiv = document.createElement("p");
+            messageDiv.textContent = content;
+
+            messageDiv.setAttribute("class",
+                role === "user"
+                    ? "user"
+                    : "bot"
+            );
+
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return messageDiv;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+import express from "express";
+import cors from "cors";
+import fetch from "node-fetch";
+
+const app = express();
+const PORT = 3000;
+
+app.use(cors());
+app.use(express.json());
+
+const API_KEY = "sk-c55a29fa24064c7da9e74e8ea001d968";
+const APP_ID = "773db83e25ea494d80b5a660e3ae6884";
+const API_URL = `https://dashscope.aliyuncs.com/api/v1/apps/${APP_ID}/completion`;
+
+app.post("/chat", async (req, res) => {
+    try {
+        const userMessage = req.body.message;
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`,
+            },
+            body: JSON.stringify({ input: { prompt: userMessage } }),
+        });
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: "API 请求失败" });
+        }
+
+        const responseText = await response.text();
+        res.setHeader("Content-Type", "text/plain");
+        res.send(responseText);
+    } catch (error) {
+        console.error("服务器错误:", error);
+        res.status(500).json({ error: "服务器错误" });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`后端服务器运行在 http://localhost:${PORT}`);
+});
