@@ -95,33 +95,36 @@
             flex-direction: column;
         }
 
-        .chat-window p {
-            margin: 8px 0;
-            padding: 12px;
-            border-radius: var(--border-radius);
-            max-width: 80%;
-            word-wrap: break-word;
-            position: relative;
-            font-size: 0.95em;
-            transition: var(--transition);
-        }
+   .chat-window .user, .chat-window .bot {
+    padding: 12px;
+    border-radius: 12px; /* 圆角气泡 */
+    max-width: 80%;
+    word-wrap: break-word;
+    font-size: 0.95em;
+    display: inline-block; /* 让气泡正常显示 */
+}
 
-        .chat-window .user {
-            background-color: var(--primary-color);
-            color: var(--text-light-color);
-            align-self: flex-end;
-            text-align: left;
-            box-shadow: var(--shadow);
-        }
+/* 解决 Markdown 文字换行、竖排问题 */
+.chat-window .user p, .chat-window .bot p {
+    margin: 0;
+    display: block;
+    white-space: normal;
+}
 
-        .chat-window .bot {
-            background-color: var(--surface-color);
-            color: var(--text-color);
-            align-self: flex-start;
-            text-align: left;
-            border: 1px solid #e0e0e0; /* 添加边框 */
-            box-shadow: var(--shadow);
-        }
+/* 让用户消息靠右，机器消息靠左 */
+.chat-window .user {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.chat-window .bot {
+    align-self: flex-start;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    border: 1px solid #e0e0e0;
+}
+
 
         .input-container {
             display: flex;
