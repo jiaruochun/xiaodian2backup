@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import { json } from "micro";
 
 export default async function handler(req, res) {
     // 允许跨域请求
@@ -15,20 +15,25 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: "仅支持 POST 请求" });
     }
 
-    const API_KEY = process.env.API_KEY;
-    const APP_ID = process.env.APP_ID;
-    const API_URL = `https://dashscope.aliyuncs.com/api/v1/apps/${APP_ID}/completion`;
-
-    if (!API_KEY || !APP_ID) {
-        return res.status(500).json({ error: "服务器环境变量缺失，请检查 API_KEY 和 APP_ID" });
-    }
-
     try {
-        const { message, session_id } = req.body; // 取出 session_id
+        // 解析 JSON 请求体
+        const body = await json(req);
+        console.log("请求体:", body); // 打印日志调试
+        const { message, session_id } = body;
 
         if (!message) {
             return res.status(400).json({ error: "消息不能为空" });
         }
+
+        // 读取环境变量
+        const API_KEY = process.env.API_KEY;
+        const APP_ID = process.env.APP_ID;
+        if (!API_KEY?.trim() || !APP_ID?.trim()) {
+            return res.status(500).json({ error: "服务器环境变量缺失" });
+        }
+
+        // API 请求地址
+        const API_URL = `https://dashscope.aliyuncs.com/api/v1/apps/${APP_ID}/completion`;
 
         // 构造请求体
         const requestBody = {
@@ -42,6 +47,9 @@ export default async function handler(req, res) {
             requestBody.input.session_id = session_id;
         }
 
+        console.log("请求 DashScope API:", requestBody); // 调试 API 请求
+
+        // 发送请求到阿里百炼 API
         const response = await fetch(API_URL, {
             method: "POST",
             headers: {
@@ -52,15 +60,17 @@ export default async function handler(req, res) {
         });
 
         if (!response.ok) {
-            return res.status(response.status).json({ error: "API 请求失败" });
+            const errorText = await response.text();
+            console.error("API 请求失败:", errorText);
+            return res.status(response.status).json({ error: "API 请求失败", details: errorText });
         }
 
         const data = await response.json();
+        console.log("API 响应:", data); // 打印 API 响应
 
-        // 确保返回新的 session_id，前端需要用它进行多轮对话
         res.json({
             output: data.output,
-            session_id: data.output.output.session_id  // 返回 session_id
+            session_id: data.output?.output?.session_id || session_id  // 确保返回 session_id
         });
 
     } catch (error) {
