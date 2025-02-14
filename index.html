@@ -176,13 +176,14 @@
 
                 const responseJson = await response.json();
 
-                if (responseJson.output && responseJson.output.output) {
-                    sessionId = responseJson.output.output.session_id;
-                    const responseText = responseJson.output.output.text;
-                    responseDiv.innerHTML = DOMPurify.sanitize(marked.parse(responseText));
-                } else {
-                    throw new Error("API 响应格式错误");
-                }
+if (responseJson.output && responseJson.output.text) {
+    sessionId = responseJson.output.session_id;
+    const responseText = responseJson.output.text;
+    responseDiv.innerHTML = DOMPurify.sanitize(marked.parse(responseText));
+} else {
+    throw new Error("API 响应格式错误");
+}
+
             } catch (error) {
                 console.error("请求失败:", error.message);
                 responseDiv.textContent = "服务器错误，请稍后重试！";
