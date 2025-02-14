@@ -43,7 +43,15 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        res.json({ output: data });
+        //res.json({ output: data });
+        res.json({
+    output: {
+        output: {
+            text: "**你好！**\n\n这是一个支持 *Markdown* 的 **聊天机器人**！\n\n```js\nconsole.log('Hello, world!');\n```"
+        }
+    }
+});
+        
     } catch (error) {
         console.error("服务器错误:", error);
         res.status(500).json({ error: "服务器错误" });
