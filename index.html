@@ -240,22 +240,31 @@ async function sendMessage() {
 
 
 
-        function appendMessage(role, content) {
-            const chatBox = document.getElementById("chat-box");
-            const messageDiv = document.createElement("p");
-            //messageDiv.textContent = content;
-            // 解析 Markdown
-            messageDiv.innerHTML = marked.parse(content);
-            messageDiv.setAttribute("class",
-                role === "user"
-                    ? "user"
-                    : "bot"
-            );
+function appendMessage(role, content) {
+    const chatBox = document.getElementById("chat-box");
+    const messageDiv = document.createElement("div"); // 用 div 替换 p
+    
+    messageDiv.innerHTML = marked.parse(content); // 解析 Markdown
+    
+    messageDiv.setAttribute("class", 
+        role === "user" 
+            ? "user"
+            : "bot"
+    );
 
-            chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-            return messageDiv;
-        }
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 高亮代码块
+    setTimeout(() => {
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+    }, 0);
+
+    return messageDiv;
+}
+
 
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
