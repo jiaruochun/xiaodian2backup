@@ -194,6 +194,8 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 </head>
 <body>
     <div class="chat-container">
@@ -241,8 +243,9 @@ async function sendMessage() {
         function appendMessage(role, content) {
             const chatBox = document.getElementById("chat-box");
             const messageDiv = document.createElement("p");
-            messageDiv.textContent = content;
-
+            //messageDiv.textContent = content;
+            // 解析 Markdown
+            messageDiv.innerHTML = marked.parse(content);
             messageDiv.setAttribute("class",
                 role === "user"
                     ? "user"
