@@ -238,8 +238,9 @@ async function sendMessage() {
 
     const responseJson = await response.json();
     const responseText = responseJson.output.output.text;  // 确保正确解析返回内容
-    responseDiv.textContent = responseText;
+    responseDiv.innerHTML = marked.parse(responseText); // 解析 Markdown
 }
+
 
 
 
