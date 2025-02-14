@@ -1,3 +1,6 @@
+import { buffer } from "micro"; // Vercel 解析 body 需要 buffer
+import fetch from "node-fetch";
+
 export default async function handler(req, res) {
     // 允许跨域请求
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -14,9 +17,11 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 使用 Vercel 提供的 req.json() 解析请求体
-        const body = await req.json();
+        // 解析 JSON 请求体
+        const rawBody = await buffer(req);
+        const body = JSON.parse(rawBody.toString());
         console.log("请求体:", body); // 调试日志
+
         const { message, session_id } = body;
 
         if (!message) {
@@ -76,3 +81,10 @@ export default async function handler(req, res) {
         res.status(500).json({ error: "服务器错误" });
     }
 }
+
+// 关闭 Vercel 的 body 解析，防止冲突
+export const config = {
+    api: {
+        bodyParser: false
+    }
+};
