@@ -24,9 +24,22 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { message } = req.body;
+        const { message, session_id } = req.body; // 取出 session_id
+
         if (!message) {
             return res.status(400).json({ error: "消息不能为空" });
+        }
+
+        // 构造请求体
+        const requestBody = {
+            input: { prompt: message },
+            parameters: {},
+            debug: {}
+        };
+
+        // 如果前端传了 session_id，则加上
+        if (session_id) {
+            requestBody.input.session_id = session_id;
         }
 
         const response = await fetch(API_URL, {
@@ -35,7 +48,7 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${API_KEY}`,
             },
-            body: JSON.stringify({ input: { prompt: message } }),
+            body: JSON.stringify(requestBody),
         });
 
         if (!response.ok) {
@@ -43,9 +56,13 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        res.json({ output: data });
 
-        
+        // 确保返回新的 session_id，前端需要用它进行多轮对话
+        res.json({
+            output: data.output,
+            session_id: data.output.output.session_id  // 返回 session_id
+        });
+
     } catch (error) {
         console.error("服务器错误:", error);
         res.status(500).json({ error: "服务器错误" });
