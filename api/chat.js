@@ -1,5 +1,3 @@
-import { json } from "micro";
-
 export default async function handler(req, res) {
     // 允许跨域请求
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -16,9 +14,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 解析 JSON 请求体
-        const body = await json(req);
-        console.log("请求体:", body); // 打印日志调试
+        // 使用 Vercel 提供的 req.json() 解析请求体
+        const body = await req.json();
+        console.log("请求体:", body); // 调试日志
         const { message, session_id } = body;
 
         if (!message) {
