@@ -242,28 +242,22 @@ async function sendMessage() {
 
 function appendMessage(role, content) {
     const chatBox = document.getElementById("chat-box");
-    const messageDiv = document.createElement("div"); // 用 div 替换 p
-    
+
+    // 创建外层 div，保证原来的气泡样式
+    const messageWrapper = document.createElement("div");
+    messageWrapper.classList.add(role === "user" ? "user" : "bot");
+
+    // 创建内部 div，放解析后的 Markdown
+    const messageDiv = document.createElement("div");
     messageDiv.innerHTML = marked.parse(content); // 解析 Markdown
-    
-    messageDiv.setAttribute("class", 
-        role === "user" 
-            ? "user"
-            : "bot"
-    );
 
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    messageWrapper.appendChild(messageDiv);
+    chatBox.appendChild(messageWrapper);
+    chatBox.scrollTop = chatBox.scrollHeight; // 滚动到底部
 
-    // 高亮代码块
-    setTimeout(() => {
-        document.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-        });
-    }, 0);
-
-    return messageDiv;
+    return messageWrapper;
 }
+
 
 
         function handleKeyPress(event) {
