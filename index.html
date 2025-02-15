@@ -257,8 +257,12 @@
             console.log("发送请求:", payload); // 添加调试日志
 
             try {
-                console.log("开始发送请求到:", 'http://localhost:3000/api/chat'); // 添加调试日志
-                const response = await fetch('http://localhost:3000/api/chat', {
+                //console.log("开始发送请求到:", 'http://localhost:3000/api/chat'); // 添加调试日志
+                //const response = await fetch('http://localhost:3000/api/chat', {
+                                // 将本地地址改为你的 Vercel 部署地址
+                const API_URL = 'https://2.mdznkf.xin/api/chat';
+                console.log("开始发送请求到:", API_URL);
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
