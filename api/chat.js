@@ -1,90 +1,101 @@
-import { buffer } from "micro"; // Vercel 解析 body 需要 buffer
-import fetch from "node-fetch";
+import axios from 'axios';
+import dotenv from "dotenv";
+
+dotenv.config();
+
+function getRequestBody(req) {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                resolve(JSON.parse(body));
+            } catch (error) {
+                reject(error);
+            }
+        });
+        req.on('error', reject);
+    });
+}
 
 export default async function handler(req, res) {
-    // 允许跨域请求
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    // 设置 SSE 头
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // 处理 OPTIONS 预检请求
     if (req.method === "OPTIONS") {
-        return res.status(200).end();
+        res.writeHead(200);
+        res.end();
+        return;
     }
 
     if (req.method !== "POST") {
-        return res.status(405).json({ error: "仅支持 POST 请求" });
+        res.write(`data: ${JSON.stringify({ error: "仅支持 POST 请求" })}\n\n`);
+        res.end();
+        return;
     }
 
     try {
-        // 解析 JSON 请求体
-        const rawBody = await buffer(req);
-        const body = JSON.parse(rawBody.toString());
-        console.log("请求体:", body); // 调试日志
-
+        const body = await getRequestBody(req);
         const { message, session_id } = body;
 
         if (!message) {
-            return res.status(400).json({ error: "消息不能为空" });
+            res.write(`data: ${JSON.stringify({ error: "消息不能为空" })}\n\n`);
+            res.end();
+            return;
         }
 
-        // 读取环境变量
         const API_KEY = process.env.API_KEY;
         const APP_ID = process.env.APP_ID;
+        
         if (!API_KEY?.trim() || !APP_ID?.trim()) {
-            return res.status(500).json({ error: "服务器环境变量缺失" });
+            res.write(`data: ${JSON.stringify({ error: "服务器环境变量缺失" })}\n\n`);
+            res.end();
+            return;
         }
 
-        // API 请求地址
         const API_URL = `https://dashscope.aliyuncs.com/api/v1/apps/${APP_ID}/completion`;
-
-        // 构造请求体
         const requestBody = {
             input: { prompt: message },
-            parameters: {},
+            parameters: {
+                'incremental_output': true
+            },
             debug: {}
         };
 
-        // 如果前端传了 session_id，则加上
         if (session_id) {
             requestBody.input.session_id = session_id;
         }
 
-        console.log("请求 DashScope API:", requestBody); // 调试 API 请求
-
-        // 发送请求到阿里百炼 API
-        const response = await fetch(API_URL, {
-            method: "POST",
+        const response = await axios.post(API_URL, requestBody, {
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`,
+                'Authorization': `Bearer ${API_KEY}`,
+                'Content-Type': 'application/json',
+                'X-DashScope-SSE': 'enable'
             },
-            body: JSON.stringify(requestBody),
+            responseType: 'stream'
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("API 请求失败:", errorText);
-            return res.status(response.status).json({ error: "API 请求失败", details: errorText });
-        }
+        response.data.on('data', chunk => {
+            const text = chunk.toString();
+            if (text.trim()) {
+                res.write(`data: ${text}\n\n`);
+            }
+        });
 
-        const data = await response.json();
-        console.log("API 响应:", data); // 打印 API 响应
-
-        res.json({
-            output: data.output,
-            session_id: data.output?.output?.session_id || session_id  // 确保返回 session_id
+        response.data.on('end', () => {
+            res.end();
         });
 
     } catch (error) {
         console.error("服务器错误:", error);
-        res.status(500).json({ error: "服务器错误" });
+        res.write(`data: ${JSON.stringify({ error: "服务器错误" })}\n\n`);
+        res.end();
     }
 }
-
-// 关闭 Vercel 的 body 解析，防止冲突
-export const config = {
-    api: {
-        bodyParser: false
-    }
-};
