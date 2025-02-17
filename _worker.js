@@ -1,17 +1,26 @@
 export default {
   async fetch(request, env) {
+    // 允许所有请求方法的 CORS 预检
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
+          'Access-Control-Max-Age': '86400',
         },
       });
     }
 
+    // 只处理 POST 请求
     if (request.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
+      return new Response('Method not allowed', { 
+        status: 405,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        }
+      });
     }
 
     try {

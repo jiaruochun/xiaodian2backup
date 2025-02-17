@@ -1,6 +1,10 @@
 name = "xiaodian2-api"
-main = "worker.js"
+main = "_worker.js"
 compatibility_date = "2023-01-01"
+
+[build]
+command = "npm run build"
+output_dir = "dist"
 
 [vars]
 API_KEY = "your_api_key_here"
