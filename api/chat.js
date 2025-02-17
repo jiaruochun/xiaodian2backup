@@ -54,6 +54,11 @@ export default async function handler(req, res) {
         const API_KEY = process.env.API_KEY;
         const APP_ID = process.env.APP_ID;
         
+        console.log('Environment check:', {
+            hasApiKey: !!API_KEY,
+            hasAppId: !!APP_ID
+        });
+        
         if (!API_KEY?.trim() || !APP_ID?.trim()) {
             res.write(`data: ${JSON.stringify({ error: "服务器环境变量缺失" })}\n\n`);
             res.end();
