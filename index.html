@@ -257,8 +257,7 @@
             console.log("发送请求:", payload); // 添加调试日志
 
             try {
-                // 使用 Cloudflare 部署的地址
-                const API_URL = 'https://3.mdznkf.xin/api/chat';  // Cloudflare部署的地址
+                const API_URL = 'https://9389502c.xiaodian2backup.pages.dev';  // 不需要添加 /api/chat
                 console.log("开始发送请求到:", API_URL);
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -269,7 +268,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Request failed');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const reader = response.body.getReader();
@@ -320,7 +319,7 @@
                 }
             } catch (error) {
                 console.error("请求失败:", error);
-                responseDiv.textContent = "服务器错误，请稍后重试！";
+                responseDiv.textContent = `服务器错误，请稍后重试！(${error.message})`;
             } finally {
                 userInput.disabled = false;
                 userInput.focus();

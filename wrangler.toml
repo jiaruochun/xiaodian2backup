@@ -1,0 +1,7 @@
+name = "xiaodian2-api"
+main = "worker.js"
+compatibility_date = "2023-01-01"
+
+[vars]
+API_KEY = "your_api_key_here"
+APP_ID = "your_app_id_here"
