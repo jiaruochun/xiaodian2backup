@@ -257,8 +257,8 @@
             console.log("发送请求:", payload); // 添加调试日志
 
             try {
-                // 直接向 Cloudflare Pages 网站的根路径发送请求
-                const API_URL = 'https://9389502c.xiaodian2backup.pages.dev';  // 移除 /api/chat
+                // 使用 Cloudflare Pages 自动生成的域名
+                const API_URL = 'https://9389502c.xiaodian2backup.pages.dev';
                 console.log("开始发送请求到:", API_URL);
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -269,10 +269,7 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
-                    console.error("HTTP错误:", response.status, response.statusText);
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                console.log("收到响应:", response.status); // 添加调试日志
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
@@ -322,7 +319,7 @@
                 }
             } catch (error) {
                 console.error("请求失败:", error);
-                responseDiv.textContent = `服务器错误: ${error.message}`;
+                responseDiv.textContent = "服务器错误，请稍后重试！";
             } finally {
                 userInput.disabled = false;
                 userInput.focus();
